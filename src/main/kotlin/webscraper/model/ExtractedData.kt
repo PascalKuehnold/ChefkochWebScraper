@@ -2,6 +2,7 @@ package webscraper.model
 
 /**
  * Data class for the desired data you want to extract from the website
+ * @author Pascal Kühnold
  * @property httpMessage the http message you receive when trying to connect to the website
  * @property pageLink the url of the website you want to extract data from
  * @property mealName the name of the meal
@@ -14,10 +15,8 @@ package webscraper.model
  * @property ingredients the ingredients you need for the recipe
  * @see Ingredient
  * @property tags the given tags for the recipe, defined by the author
- *
- * @author Pascal Kühnold
  */
-data class ExtracedData(
+data class ExtractedData(
     var httpMessage: String = "",
     var pageLink: String = "",
     var mealName: String = "",
