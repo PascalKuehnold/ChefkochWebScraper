@@ -7,21 +7,50 @@ import it.skrape.selects.and
 import it.skrape.selects.eachText
 import it.skrape.selects.html5.a
 import it.skrape.skrape
-import webscraper.model.ExtracedData
+import webscraper.model.ExtractedData
 import webscraper.model.Ingredient
 
-class WebScraper {
-    var pageLink: String = ""
+/**
+ * The main class for extracting the data from a given url from Chefkoch.de
+ * The data is defined by the ExtractedData data class
+ * The library used for extracting the data is skrape{it}
+ * @author Pascal Kühnold
+ * @see <a href="https://docs.skrape.it/docs/">https://docs.skrape.it/docs/</a>
+ *
+ * @property extracted the extracted data from the website, defined be the ExtractedData dataclass
+ * @see ExtractedData
+ *
+ * @property pageLink the url the user wants to visit to get the data from the website
+ *
+ */
+class ChefkochMealScraper(recipeUrl: String) {
+
+    private val _url = checkIfValidUrl(recipeUrl)
+
+    private fun checkIfValidUrl(recipeUrl: String): String {
+        val regex = Regex(pattern = "https://www.chefkoch.de/rezepte/\\d*\\/.*\\.html", options = setOf(RegexOption.IGNORE_CASE))
+        val matches = regex.matches(recipeUrl)
+        println(matches)
+
+        return if(matches){
+            "$recipeUrl?portionen=2"
+        } else {
+            ""
+        }
+    }
+
+    private var pageLink: String = ""
 
     //IMPORTANT Url must have ?portionen=2 for correct scraping -> standard route
-    val extracted = skrape(HttpFetcher) {
+    //Url should be dynamic and not hardcoded
+    private val extracted = skrape(HttpFetcher) {
         request {
             url =
-                "https://www.chefkoch.de/rezepte/1769391286881789/Zucchini-Omelett-mit-Kaese.html?portionen=2"
+                _url
             pageLink = url
         }
 
-        extractIt<ExtracedData> { it ->
+        extractIt<ExtractedData> { it ->
             val ingredients: MutableList<Ingredient> = mutableListOf()
 
             it.httpMessage = status { message }
@@ -56,7 +85,7 @@ class WebScraper {
 
                 it.ingredients = ingredients
 
-                it.preperationText =
+                it.preparationText =
                     "body > main > article.ds-box.ds-grid-float.ds-col-12.ds-col-m-8.ds-or-3 > div:nth-child(3)" {
                         findFirst { text }
                     }
@@ -70,9 +99,22 @@ class WebScraper {
         }
     }
 
+    /**
+     * Method for getting the extracted data
+     *
+     * @return the extracted Data as an ExtractedData class
+     */
+    fun getExtractedMealData(): ExtractedData{
+        return extracted
+    }
+
+    /**
+     * Debug method
+     */
     fun printValue() {
         println(
             extracted
         )
     }
+
 }
